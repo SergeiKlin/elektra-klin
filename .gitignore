@@ -1,0 +1,12 @@
+.env
+
+.mypy_cache/
+.vscode/
+.idea/
+venv/
+__pycache__/
+
+ctlg/
+ctlg_rsz/
+Test/
+Temp/
