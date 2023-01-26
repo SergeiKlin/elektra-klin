@@ -33,6 +33,10 @@ if __name__ == '__main__':
             pict_delete()
         elif choice == '0':
             del_Temp()
+        elif choice == 'x':
+            pass
+            # pict_delete()
+            # equally()
         else:
             print('С П А С И Б О')
     except (KeyboardInterrupt, SystemExit):
