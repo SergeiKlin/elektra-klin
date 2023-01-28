@@ -11,7 +11,6 @@ config: Config = load_config()
 import wget, pathlib
 
 
-
 def add_image_db(row, vendor_code: str, img: list, con):
     # Ищем по коду в БД
     ftp = connect_ftp(config.ftp_el)
@@ -35,16 +34,18 @@ def add_image_db(row, vendor_code: str, img: list, con):
 
 
 def equally():
-    el_code = input('Код в Электра: ')
-    con = connect_mysql(config.db)
-    row = search_bd(con, el_code)
-    if id is not None:
-        rs_code = input('Код в Русском Свете: ')
-        api_item = rs24_item(rs_code, config.rs24)
-        print(f"Найдено: {api_item.json()['INFO'][0]['DESCRIPTION']}")
-        zagruz = input('Загружаем картинки? (1 - Да, другое - НЕТ) ___ ')
-        if zagruz:
-            # Загружаем картинку на FTP сервер
-            # print(row, api_item.json()["IMG"])
-            api_image = api_item.json()["IMG"]
-            add_image_db(row, el_code, api_image, con)
+    el_code = input('Код в Электра (exit для выхода): ')
+    while el_code != 'exit':
+        con = connect_mysql(config.db)
+        row = search_bd(con, el_code)
+        if id is not None:
+            rs_code = input('Код в Русском Свете: ')
+            api_item = rs24_item(rs_code, config.rs24)
+            print(f"Найдено: {api_item.json()['INFO'][0]['DESCRIPTION']}")
+            zagruz = input('Загружаем картинки? (1 - Да, другое - НЕТ) ___ ')
+            if zagruz:
+                # Загружаем картинку на FTP сервер
+                # print(row, api_item.json()["IMG"])
+                api_image = api_item.json()["IMG"]
+                add_image_db(row, el_code, api_image, con)
+            el_code = input('Код в Электра (exit для выхода): ')

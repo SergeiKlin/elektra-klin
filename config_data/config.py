@@ -15,7 +15,7 @@ class DatabaseConfig:
 class API_RS24:
     url_items: str  # URL для доступа к списку товаров
     url_item: str  # URL для доступа к характеристикам товара
-    # headers: dict  # Логин и пароль для доступа к API Русский свет
+    # headers: dict # Логин и пароль для доступа к API Русский свет
     api_user: str
     api_password: str
 
@@ -40,12 +40,12 @@ def load_config(path: str | None = None) -> Config:
     env: Env = Env()
 
     # Добавляем в переменные окружения данные, прочитанные из файла .env
-    env.read_env()
+    env.read_env(path)
     return Config(rs24=API_RS24(url_items=env('url_items'),
                                 url_item=env('url_item'),
                                 api_user=env('api_user'),
                                 api_password=env('api_password')),
-                                # headers=env('headers')),
+                  # headers=env('headers')),
                   db=DatabaseConfig(db_name=env('db_name'),
                                     db_host=env('db_host'),
                                     db_user=env('db_user'),

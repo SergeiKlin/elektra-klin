@@ -1,5 +1,6 @@
 import pymysql
 
+
 def connect_mysql(*DatabaseConfig):
     conf_db = DatabaseConfig[0]
     bd_server = conf_db.db_host
