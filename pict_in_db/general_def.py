@@ -42,7 +42,7 @@ def add_dir_ftp(ftp, dir_pict: list):
 def search_bd(con, code):
     with con.cursor() as cur:
         id = None
-        query = "SELECT id, title, code, image_url FROM mg_product WHERE code = '" + code + "'"
+        query = "SELECT id, title, code, image_url, description FROM mg_product WHERE code = '" + code + "'"
         cur.execute(query)
         rows = cur.fetchall()
         if len(rows) == 0:

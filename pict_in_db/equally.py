@@ -15,7 +15,7 @@ def add_image_db(row, vendor_code: str, img: list, con):
     # Ищем по коду в БД
     ftp = connect_ftp(config.ftp_el)
     cur = con.cursor()
-    if row[0][3] == None:  # Сохраняем картинку только если ее НЕТ
+    if row[0][3] == '':  # Сохраняем картинку только если ее НЕТ
         pict = img[0]['URL']
         outpath = pathlib.Path.cwd() / 'Temp'
         wget.download(pict, str(outpath))
@@ -32,6 +32,24 @@ def add_image_db(row, vendor_code: str, img: list, con):
     # # ftp_server.close()
     # # ftp_server.quit()
 
+def add_spec_db(row, vendor_code: str, specifications: list, con):
+    # <strong>Сечение провода:</strong> 16 / 25 / 35<br />
+    cur = con.cursor()
+    sp = ''
+    print(row)
+    if row[0][4] == None:
+        for spec in specifications:
+            sp += '<strong>' + spec['NAME'] + ': </strong>' + spec['VALUE'] + '<br/>'
+        query = "UPDATE mg_product SET description='" + sp + "' WHERE code = '" + vendor_code + "'"
+        print(f'Загружены характеристики для {row[0][1]} --- {vendor_code}')
+        cur.execute(query)
+    else:
+        if input('Характеристтики заполнены, перезаписываем? (1 - Да, другое - НЕТ) ___ ') == '1':
+            for spec in specifications:
+                sp += '<strong>' + spec['NAME'] + ': </strong>' + spec['VALUE'] + '<br/>'
+            query = "UPDATE mg_product SET description='" + sp + "' WHERE code = '" + vendor_code + "'"
+            print(f'Загружены характеристики для {row[0][1]} --- {vendor_code}')
+            cur.execute(query)
 
 def equally():
     el_code = input('Код в Электра (exit для выхода): ')
@@ -42,10 +60,13 @@ def equally():
             rs_code = input('Код в Русском Свете: ')
             api_item = rs24_item(rs_code, config.rs24)
             print(f"Найдено: {api_item.json()['INFO'][0]['DESCRIPTION']}")
-            zagruz = input('Загружаем картинки? (1 - Да, другое - НЕТ) ___ ')
+            zagruz = input('Загружаем картинки и характеристики? (1 - Да, другое - НЕТ) ___ ')
             if zagruz:
                 # Загружаем картинку на FTP сервер
                 # print(row, api_item.json()["IMG"])
                 api_image = api_item.json()["IMG"]
                 add_image_db(row, el_code, api_image, con)
+                # Грузим характеристики
+                api_spec = api_item.json()['SPECS']
+                add_spec_db(row, el_code, api_spec, con)
             el_code = input('Код в Электра (exit для выхода): ')
