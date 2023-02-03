@@ -15,7 +15,7 @@ def add_image_db(row, vendor_code: str, img: list, con):
     # Ищем по коду в БД
     ftp = connect_ftp(config.ftp_el)
     cur = con.cursor()
-    if row[0][3] == '':  # Сохраняем картинку только если ее НЕТ
+    if row[0][3] == None or row[0][3] == '':  # Сохраняем картинку только если ее НЕТ
         pict = img[0]['URL']
         outpath = pathlib.Path.cwd() / 'Temp'
         wget.download(pict, str(outpath))
@@ -37,7 +37,7 @@ def add_spec_db(row, vendor_code: str, specifications: list, con):
     cur = con.cursor()
     sp = ''
     print(row)
-    if row[0][4] == None:
+    if row[0][4] == None or row[0][4] == '':
         for spec in specifications:
             sp += '<strong>' + spec['NAME'] + ': </strong>' + spec['VALUE'] + '<br/>'
         query = "UPDATE mg_product SET description='" + sp + "' WHERE code = '" + vendor_code + "'"
