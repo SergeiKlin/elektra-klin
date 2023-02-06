@@ -33,7 +33,6 @@ def add_image_db(row, vendor_code: str, img: list, con):
     # # ftp_server.quit()
 
 def add_spec_db(row, vendor_code: str, specifications: list, con):
-    # <strong>Сечение провода:</strong> 16 / 25 / 35<br />
     cur = con.cursor()
     sp = ''
     print(row)

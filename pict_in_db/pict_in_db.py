@@ -1,7 +1,7 @@
 from connect.MySQL import connect_mysql
 from connect.API_rs24 import connect_rs24, rs24_item
 from connect.ftp import connect_ftp
-from .general_def import directory, add_dir_ftp
+from .general_def import directory, add_dir_ftp, search_bd
 
 from config_data.config import Config, load_config
 
@@ -10,13 +10,14 @@ config: Config = load_config()
 
 import wget, pathlib
 
+
 def directory_del(code: str) -> list:
-    '''
+    """
     На входе получаем id товара
     На выходе структуру каталогов для загрузки изображений
     :param code:
     :return:
-    '''
+    """
     dl = len(code)
     cat = []
     if dl > 2:
@@ -27,6 +28,7 @@ def directory_del(code: str) -> list:
         cat.append('000')
         cat.append(code)
     return cat
+
 
 def add_dir_ftp_del(ftp, dir_pict: list):
     '''
@@ -48,7 +50,7 @@ def add_dir_ftp_del(ftp, dir_pict: list):
     return catalog
 
 
-def add_image_db(name: str, vendor_code: str, img: list):
+def add_image_spec_db(name: str, vendor_code: str, img: list, specifications: list):
     # Ищем по коду в БД
     con = connect_mysql(config.db)
     ftp = connect_ftp(config.ftp_el)
@@ -75,14 +77,26 @@ def add_image_db(name: str, vendor_code: str, img: list):
                     # Command for Uploading the file "STOR filename"
                     ftp_server.storbinary(f"STOR {pict[(pict.rfind('/') + 1):]}", file)
 
-                    sql = "UPDATE mg_product SET image_url='" + pict[(pict.rfind('/') + 1):] + "' WHERE code = '" + vendor_code + "'"
+                    sql = "UPDATE mg_product SET image_url='" + pict[(pict.rfind(
+                        '/') + 1):] + "' WHERE code = '" + vendor_code + "'"
                     print(f'Загружена картинка для {row[1]} --- {vendor_code}')
                     #
                     cur.execute(sql)
                 # ftp_server.close()
                 # ftp_server.quit()
-
-
+        query = "SELECT id, title, code, image_url, description FROM mg_product WHERE code = '" + vendor_code + "'"
+        cur.execute(query)
+        rows = cur.fetchall()
+        for row in rows:
+            if row[4] == '':
+                sp = ''
+                for spec in specifications:
+                    sp += '<strong>' + spec['NAME'] + ': </strong>' + spec['VALUE'] + '<br/>'
+                query = "UPDATE mg_product SET description='" + sp + "' WHERE code = '" + vendor_code + "'"
+                print(f'Загружены характеристики для {row[1]} --- {vendor_code}')
+                cur.execute(query)
+            else:
+                print(f'Характеритсика для {vendor_code} заполнена, наим: {row[1]} --- {row[4]}')
 
 def start_stop():
     page_start = int(input('Введите стартовую страницу: '))
@@ -94,10 +108,11 @@ def start_stop():
             # Получаем с API страницу с характеристиками товара
             api_item = rs24_item(item['CODE'], config.rs24)
             try:
-                api_vendor_code = str(api_item.json()['INFO'][0]['VENDOR_CODE'])  #13, 14, 18б 210, 283
+                api_vendor_code = str(api_item.json()['INFO'][0]['VENDOR_CODE'])  # 13, 14, 18б 210, 283
                 api_name = api_item.json()['INFO'][0]['DESCRIPTION']
                 api_image = api_item.json()["IMG"]
-                add_image_db(api_name, api_vendor_code, api_image)
+                api_spec = api_item.json()["SPECS"]
+                add_image_spec_db(api_name, api_vendor_code, api_image, api_spec)
             except:
                 print(f'Ошибка при загрузке {api_item.json()["INFO"][0]}')
                 print(item['CODE'], api_item.json())
