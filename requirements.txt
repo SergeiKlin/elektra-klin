@@ -1,4 +1,4 @@
-pymysql
+pymysql==1.0.2
 environs==9.5.0
 requests==2.28.2
 wget==3.2
