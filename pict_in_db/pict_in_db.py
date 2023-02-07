@@ -116,7 +116,7 @@ def start_stop():
             except:
                 print(f'Ошибка при загрузке {api_item.json()["INFO"][0]}')
                 print(item['CODE'], api_item.json())
-        input('Загрузка завершена!!!!')
+    input('Загрузка завершена!!!!')
     # --- Соединение с БД MySQL
     # con = connect_mysql(config.db)
     # print(con)
