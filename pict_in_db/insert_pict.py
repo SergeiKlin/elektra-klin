@@ -11,12 +11,13 @@ config: Config = load_config()
 import wget, pathlib
 
 
-def add_image_db(row, vendor_code: str, img: list, con):
+def add_image_db(row, vendor_code: str, img_url: str, con):
     # Ищем по коду в БД
     ftp = connect_ftp(config.ftp_el)
     cur = con.cursor()
     if row[0][3] == None or row[0][3] == '':  # Сохраняем картинку только если ее НЕТ
-        pict = img[0]['URL']
+        # pict = img[0]['URL']
+        pict = img_url
         outpath = pathlib.Path.cwd() / 'Temp'
         wget.download(pict, str(outpath))
         ftp_server = connect_ftp(config.ftp_el)
@@ -56,7 +57,7 @@ def pict_insert():
         con = connect_mysql(config.db)
         row = search_bd(con, el_code)
         if id is not None:
-            url_pict = input('URL загружаемой каринки')
+            url_pict = input('URL загружаемой каринки: ')
             zagruz = input('Загружаем картинку на сайт? (1 - Да, другое - НЕТ) ___ ')
             if zagruz:
                 # Загружаем картинку на FTP сервер
